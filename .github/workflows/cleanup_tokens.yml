@@ -27,13 +27,14 @@ jobs:
       # Clean up expired tokens
       - name: Remove expired tokens
         env:
-          GH_TOKEN: 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
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           # Cek apakah file tokens.json ada
           if [ -f tokens.json ]; then
             echo "File tokens.json ditemukan. Melanjutkan proses..."
           else
-            echo "File tokens.json tidak ditemukan...."
+            echo "File tokens.json tidak ditemukan. Membuat file kosong..."
+            echo "[]" > tokens.json
           fi
 
           # Hitung waktu saat ini (dalam detik sejak epoch)
