@@ -25,10 +25,13 @@ jobs:
         run: php cleanup_tokens.php
 
       # Langkah 4: Commit perubahan jika ada
-      - name: Commit Changes
-        run: |
-          git config --global user.name "AllJrLwrs"
-          git config --global user.email "aldibayusp12@github.com"
-          git add tokens.json
-          git commit -m "Cleanup expired tokens" || echo "No changes to commit"
-          git push
+- name: Commit Changes
+  env:
+    GH_TOKEN: ${{"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"}}
+  run: |
+    git config --global user.name "AllJrLwrs"
+    git config --global user.email "aldibayusp12@github.com"
+    git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+    git add tokens.json
+    git commit -m "Cleanup expired tokens" || echo "No changes to commit"
+    git push origin HEAD:${{ github.ref_name }}
