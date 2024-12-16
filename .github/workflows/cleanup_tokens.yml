@@ -27,7 +27,7 @@ jobs:
       # Langkah 4: Commit perubahan jika ada
 - name: Commit Changes
   env:
-    GH_TOKEN: ${{"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"}}
+    GH_TOKEN: ${{"secrets.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"}}
   run: |
     git config --global user.name "AllJrLwrs"
     git config --global user.email "aldibayusp12@github.com"
