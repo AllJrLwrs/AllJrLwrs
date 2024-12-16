@@ -53,6 +53,6 @@ jobs:
             git config --global user.email "aldibayusp12@gmail.com"
             git add tokens.json
             git commit -m "Cleanup expired tokens"
-            git push https://x-access-token:${GH_TOKEN}@github.com/AllJrLwrs/AllJrLwrs.git HEAD:main
+            git push https://x-access-token:${GH_TOKEN}@github.com/repos/AllJrLwrs/AllJrLwrs/contents/tokens.json HEAD:main
             echo "Tokens yang kedaluwarsa berhasil dihapus."
           fi
