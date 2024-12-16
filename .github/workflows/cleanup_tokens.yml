@@ -40,7 +40,7 @@ jobs:
 
           # Filter data: hanya sisakan token dengan usia kurang dari 60 menit
           jq --argjson current_time "$current_time" '
-            [.[] | select(($current_time - (.timestamp | fromdateiso8601 | todate +%s)) < 3600)]
+            [.[] | select(($current_time - (.timestamp | fromdateiso8601)) < 3600)]
           ' tokens.json > temp.json
 
           # Periksa apakah ada perubahan pada file
