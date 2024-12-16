@@ -33,8 +33,7 @@ jobs:
           if [ -f tokens.json ]; then
             echo "File tokens.json ditemukan. Melanjutkan proses..."
           else
-            echo "File tokens.json tidak ditemukan. Membuat file kosong..."
-            echo "" > tokens.json
+            echo "File tokens.json tidak ditemukan...."
           fi
 
           # Hitung waktu saat ini (dalam detik sejak epoch)
