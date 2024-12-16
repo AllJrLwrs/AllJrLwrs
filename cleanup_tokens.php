@@ -20,7 +20,7 @@ if (!is_array($data)) {
 // Filter data untuk menghapus token yang sudah lebih dari 60 menit
 $updatedData = array_filter($data, function ($token) use ($currentTime) {
     $tokenTime = strtotime($token['timestamp']);
-    return ($currentTime - $tokenTime) <= 60; // Hanya simpan token yang kurang dari atau sama dengan 60 menit
+    return ($currentTime - $tokenTime) <= 3600; // Hanya simpan token yang kurang dari atau sama dengan 60 menit
 });
 
 // Tulis ulang file tokens.json jika ada perubahan
