@@ -1,37 +1,47 @@
-name: Cleanup Tokens
+name: Cleanup Expired Tokens
 
 on:
   schedule:
-    - cron: "*/10 * * * *" # Jalankan setiap 10 menit
-  workflow_dispatch: # Memungkinkan pemicu manual
+    # Menjalankan setiap 15 menit
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
 
 jobs:
-  cleanup_tokens:
+  cleanup:
     runs-on: ubuntu-latest
 
     steps:
-      # Langkah 1: Checkout repositori
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Langkah 2: Install PHP
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
+      - name: Configure Git
+        run: |
+          git config --global user.name "AllJrLwrs"
+          git config --global user.email "aldibayusp12@gmail.com"
 
-      # Langkah 3: Jalankan script PHP untuk membersihkan token
-      - name: Run Cleanup Script
-        run: php cleanup_tokens.php
+      - name: Clean up expired tokens
+        env:
+          GH_TOKEN: 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
+        run: |
+          # Baca file tokens.json
+          if [ -f tokens.json ]; then
+            echo "File tokens.json ditemukan. Melanjutkan proses..."
+          else
+            echo "File tokens.json tidak ditemukan. Menghentikan proses..."
+            exit 0
+          fi
 
-      # Langkah 4: Commit perubahan jika ada
-- name: Commit Changes
-  env:
-    GH_TOKEN: ${{"secrets.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"}}
-  run: |
-    git config --global user.name "AllJrLwrs"
-    git config --global user.email "aldibayusp12@github.com"
-    git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-    git add tokens.json
-    git commit -m "Cleanup expired tokens" || echo "No changes to commit"
-    git push origin HEAD:${{ github.ref_name }}
+          # Filter token yang masih berlaku (kurang dari 60 menit)
+          current_time=$(date +%s)
+          jq '[.[] | select((current_time - (.timestamp | fromdateiso8601 | todate +%s)) < 3600)]' tokens.json > temp.json
+
+          # Periksa apakah ada perubahan pada file
+          if cmp -s tokens.json temp.json; then
+            echo "Tidak ada perubahan. Token valid akan disimpan."
+          else
+            # Pindahkan kembali hasil filtering ke `tokens.json`
+            mv temp.json tokens.json
+            git add tokens.json
+            git commit -m "Cleanup expired tokens"
+            git push https://x-access-token:${GH_TOKEN}@github.com/AllJrLwrs/AllJrLwrs.git HEAD:main
+          fi
