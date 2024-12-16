@@ -27,7 +27,7 @@ jobs:
       # Clean up expired tokens
       - name: Remove expired tokens
         env:
-          GH_TOKEN: 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
+          GH_TOKEN: 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
         run: |
           # Cek apakah file tokens.json ada
           if [ -f tokens.json ]; then
