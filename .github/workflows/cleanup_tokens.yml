@@ -1,47 +1,58 @@
-name: Cleanup Expired Tokens
+name: Clean Expired Tokens
 
 on:
   schedule:
-    # Menjalankan setiap 15 menit
-    - cron: "*/15 * * * *"
-  workflow_dispatch:
+    - cron: "*/5 * * * *" # Jalankan setiap 5 menit
+  workflow_dispatch: # Bisa dijalankan secara manual
 
 jobs:
-  cleanup:
+  cleanup_tokens:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "AllJrLwrs"
-          git config --global user.email "aldibayusp12@gmail.com"
+      # Setup timezone
+      - name: Set timezone
+        run: echo "TZ=Asia/Jakarta" >> $GITHUB_ENV
 
-      - name: Clean up expired tokens
+      # Install jq untuk memproses JSON
+      - name: Install jq
+        run: sudo apt-get install jq
+
+      # Clean up expired tokens
+      - name: Remove expired tokens
         env:
           GH_TOKEN: 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
         run: |
-          # Baca file tokens.json
+          # Cek apakah file tokens.json ada
           if [ -f tokens.json ]; then
             echo "File tokens.json ditemukan. Melanjutkan proses..."
           else
-            echo "File tokens.json tidak ditemukan. Menghentikan proses..."
-            exit 0
+            echo "File tokens.json tidak ditemukan. Membuat file kosong..."
+            echo "[]" > tokens.json
           fi
 
-          # Filter token yang masih berlaku (kurang dari 60 menit)
+          # Hitung waktu saat ini (dalam detik sejak epoch)
           current_time=$(date +%s)
-          jq '[.[] | select((current_time - (.timestamp | fromdateiso8601 | todate +%s)) < 3600)]' tokens.json > temp.json
+
+          # Filter data: hanya sisakan token dengan usia kurang dari 60 menit
+          jq --argjson current_time "$current_time" '
+            [.[] | select(($current_time - (.timestamp | fromdateiso8601 | todate +%s)) < 3600)]
+          ' tokens.json > temp.json
 
           # Periksa apakah ada perubahan pada file
           if cmp -s tokens.json temp.json; then
-            echo "Tidak ada perubahan. Token valid akan disimpan."
+            echo "Tidak ada perubahan. Tidak ada token yang kedaluwarsa."
           else
-            # Pindahkan kembali hasil filtering ke `tokens.json`
+            # Update tokens.json
             mv temp.json tokens.json
+            git config --global user.name "AllJrLwrs"
+            git config --global user.email "aldibayusp12@gmail.com"
             git add tokens.json
             git commit -m "Cleanup expired tokens"
             git push https://x-access-token:${GH_TOKEN}@github.com/AllJrLwrs/AllJrLwrs.git HEAD:main
+            echo "Tokens yang kedaluwarsa berhasil dihapus."
           fi
