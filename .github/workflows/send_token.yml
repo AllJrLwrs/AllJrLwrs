@@ -24,7 +24,7 @@ jobs:
 
     - name: Run send token script
       run: |
-        python telebot.py
+        python send_token.py
       env:
         API_TOKEN: ${{ secrets.API_TOKEN }}
         GROUP_CHAT_ID: ${{ secrets.GROUP_CHAT_ID }}
