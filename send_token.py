@@ -21,9 +21,9 @@ def generate_github_signature(token):
 
 # Fungsi untuk menyimpan token ke GitHub
 def save_to_github(token):
-    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # Ambil token GitHub dari secrets
-    REPO_OWNER = "AllJrLwr"  # Ganti dengan username GitHub Anda
-    REPO_NAME = "AllJrLwr"  # Ganti dengan nama repository Anda
+    GITHUB_TOKEN = os.getenv("TOKEN_GITHUB")  # Ambil token GitHub dari environment variable
+    REPO_OWNER = os.getenv("REPO_OWNER", "AllJrLwr")  # Ambil username GitHub dari environment variable (default: AllJrLwr)
+    REPO_NAME = os.getenv("REPO_NAME", "AllJrLwr")  # Ambil nama repository dari environment variable (default: AllJrLwr)
     FILE_PATH = "tokens.json"  # Nama file di repository
 
     # URL untuk API GitHub
@@ -31,19 +31,13 @@ def save_to_github(token):
 
     # Ambil konten file saat ini
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
-    
     if response.status_code == 200:
         data = response.json()
         sha = data["sha"]
         current_content = base64.b64decode(data["content"]).decode("utf-8")
-        print(f"File berhasil diambil. Konten file: {current_content}")
-    elif response.status_code == 404:
-        print(f"File {FILE_PATH} tidak ditemukan. Membuat file baru.")
+    else:
         sha = None
         current_content = "[]"
-    else:
-        print(f"Error saat mengambil file: {response.status_code}, {response.text}")
-        return  # Keluar jika ada error
 
     # Parse konten file
     current_tokens = json.loads(current_content)
@@ -67,10 +61,8 @@ def save_to_github(token):
     payload = {
         "message": "Add new token",
         "content": new_content_encoded,
-        "sha": sha,  # Jika file baru, sha = None
+        "sha": sha,
     }
-    
-    print(f"Payload yang dikirim ke GitHub: {payload}")  # Debug payload
     response = requests.put(url, json=payload, headers={"Authorization": f"token {GITHUB_TOKEN}"})
 
     if response.status_code == 200:
@@ -78,48 +70,59 @@ def save_to_github(token):
     else:
         print(f"Error menyimpan ke GitHub: {response.status_code}, {response.text}")
 
-# Fungsi utama untuk menjalankan bot dan mengirimkan token ke grup
-async def send_token():
-    API_TOKEN = os.getenv("API_TOKEN")  # Ambil token API Telegram dari secrets
-    GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Ambil Chat ID grup dari secrets
-    bot = Bot(token=API_TOKEN)
-    
-    # Generate token acak
-    random_token = generate_random_token()
-    mestext = f"""***❤‍🔥 Hurry Up and Cheers ❤‍🔥***
+# Fungsi untuk mengirim token ke grup dan mengepin pesan token baru
+async def send_and_pin_token(bot, group_chat_id, previous_message_id=None):
+    try:
+        # Generate token acak
+        random_token = generate_random_token()
+        mestext = f"""***❤‍🔥 Hurry Up and Cheers ❤‍🔥***
 
 _Daily Token is Appearing Now_
 
-> ||     {random_token}     ||
+> || ➡️    {random_token}    ⬅️ ||
 
 ***info     : Use this Token to enter the Script***
 ***Expire : this token is only valid for 3 hours***
 """
-    
-    # Coba mengirim pesan ke grup Telegram
-    try:
-        message = await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
-        print(f"Pesan berhasil dikirim ke Telegram dengan token: {random_token}")
+        # Kirim token ke grup
+        sent_message = await bot.send_message(chat_id=group_chat_id, text=mestext, parse_mode="MarkdownV2")
         
-        # Pin pesan yang baru dikirim
-        await bot.pin_chat_message(chat_id=GROUP_CHAT_ID, message_id=message.message_id)
-        print("Pesan berhasil dipin.")
-        
-        # Unpin pesan lama jika ada
-        pinned_messages = await bot.get_chat_pinned_message(chat_id=GROUP_CHAT_ID)
-        if pinned_messages:
-            await bot.unpin_chat_message(chat_id=GROUP_CHAT_ID, message_id=pinned_messages.message_id)
-            print("Pesan lama berhasil diunpin.")
-    except Exception as e:
-        print(f"Error mengirim pesan ke Telegram: {e}")
-        return  # Jika gagal, hentikan eksekusi lebih lanjut
-    
-    # Simpan token ke GitHub
-    try:
+        # Simpan token ke GitHub
         save_to_github(random_token)
-    except Exception as e:
-        print(f"Error saat menyimpan token ke GitHub: {e}")
 
-# Menjalankan event loop untuk menjalankan fungsi asinkron send_token
+        # Hapus pesan pin sebelumnya jika ada
+        if previous_message_id:
+            try:
+                await bot.unpin_chat_message(chat_id=group_chat_id, message_id=previous_message_id)
+            except Exception as e:
+                print(f"Error saat unpin pesan sebelumnya: {e}")
+
+        # Pin pesan baru
+        await bot.pin_chat_message(chat_id=group_chat_id, message_id=sent_message.message_id)
+
+        # Return ID pesan baru yang dipin
+        return sent_message.message_id
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+# Fungsi utama untuk menjalankan bot dan mengirimkan token setiap 1 hari
+async def send_token_periodically():
+    # Ambil API Token Telegram dan Chat ID grup dari environment variable
+    API_TOKEN = os.getenv("API_TOKEN")  # Token bot Telegram
+    GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Chat ID grup Telegram
+    
+    # Inisialisasi bot Telegram
+    bot = Bot(token=API_TOKEN)
+    
+    previous_message_id = None  # ID pesan yang dipin sebelumnya
+    while True:
+        # Kirim dan pin token baru setiap 24 jam (86400 detik)
+        previous_message_id = await send_and_pin_token(bot, GROUP_CHAT_ID, previous_message_id)
+        await asyncio.sleep(86400)  # Jeda 1 hari
+
+# Main function
 if __name__ == "__main__":
-    asyncio.run(send_token())
+    print("Bot sedang berjalan, mengirim token, mengepin pesan, dan menyimpan ke GitHub...")
+    asyncio.run(send_token_periodically())
