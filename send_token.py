@@ -8,6 +8,7 @@ import hashlib
 import uuid
 from datetime import datetime, timezone
 from telegram import Bot
+import asyncio  # Import asyncio untuk menangani fungsi asinkron
 
 # Fungsi untuk membuat token acak
 def generate_random_token(length=30):
@@ -70,7 +71,7 @@ def save_to_github(token):
         print(f"Error menyimpan ke GitHub: {response.status_code}, {response.text}")
 
 # Fungsi utama untuk menjalankan bot dan mengirimkan token ke grup
-def send_token():
+async def send_token():
     API_TOKEN = os.getenv("API_TOKEN")  # Ambil token API Telegram dari secrets
     GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Ambil Chat ID grup dari secrets
     bot = Bot(token=API_TOKEN)
@@ -89,7 +90,7 @@ _Daily Token is Appearing Now_
     
     # Coba mengirim pesan ke grup Telegram
     try:
-        bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
+        await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
         print(f"Pesan berhasil dikirim ke Telegram dengan token: {random_token}")
     except Exception as e:
         print(f"Error mengirim pesan ke Telegram: {e}")
@@ -101,5 +102,6 @@ _Daily Token is Appearing Now_
     except Exception as e:
         print(f"Error saat menyimpan token ke GitHub: {e}")
 
+# Menjalankan event loop untuk menjalankan fungsi asinkron send_token
 if __name__ == "__main__":
-    send_token()
+    asyncio.run(send_token())
