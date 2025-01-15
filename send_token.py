@@ -30,7 +30,13 @@ def save_to_github(token):
     url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
 
     # Ambil konten file saat ini
-    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+    try:
+        response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+        response.raise_for_status()  # Ini akan memunculkan error jika status code != 200
+    except requests.exceptions.RequestException as e:
+        print(f"Error mengambil file dari GitHub: {e}")
+        return
+    
     if response.status_code == 200:
         data = response.json()
         sha = data["sha"]
@@ -58,17 +64,21 @@ def save_to_github(token):
     new_content_encoded = base64.b64encode(new_content.encode("utf-8")).decode("utf-8")
 
     # Update file di GitHub
-    payload = {
-        "message": "Add new token",
-        "content": new_content_encoded,
-        "sha": sha,
-    }
-    response = requests.put(url, json=payload, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+    try:
+        payload = {
+            "message": "Add new token",
+            "content": new_content_encoded,
+            "sha": sha,
+        }
+        response = requests.put(url, json=payload, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+        response.raise_for_status()  # Ini akan memunculkan error jika status code != 200
 
-    if response.status_code == 200:
-        print("Token berhasil disimpan ke GitHub!")
-    else:
-        print(f"Error menyimpan ke GitHub: {response.status_code}, {response.text}")
+        if response.status_code == 200:
+            print("Token berhasil disimpan ke GitHub!")
+        else:
+            print(f"Error menyimpan token ke GitHub: {response.status_code}, {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error saat menyimpan token ke GitHub: {e}")
 
 # Fungsi utama untuk menjalankan bot dan mengirimkan token ke grup
 async def send_token():
