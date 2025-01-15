@@ -82,7 +82,7 @@ async def send_token():
 
 _Daily Token is Appearing Now_
 
-> || ➡️    {random_token}    ⬅️ ||
+> ||     {random_token}     ||
 
 ***info     : Use this Token to enter the Script***
 ***Expire : this token is only valid for 3 hours***
@@ -90,8 +90,18 @@ _Daily Token is Appearing Now_
     
     # Coba mengirim pesan ke grup Telegram
     try:
-        await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
+        message = await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
         print(f"Pesan berhasil dikirim ke Telegram dengan token: {random_token}")
+        
+        # Pin pesan yang baru dikirim
+        await bot.pin_chat_message(chat_id=GROUP_CHAT_ID, message_id=message.message_id)
+        print("Pesan berhasil dipin.")
+        
+        # Unpin pesan lama jika ada
+        pinned_messages = await bot.get_chat_pinned_message(chat_id=GROUP_CHAT_ID)
+        if pinned_messages:
+            await bot.unpin_chat_message(chat_id=GROUP_CHAT_ID, message_id=pinned_messages.message_id)
+            print("Pesan lama berhasil diunpin.")
     except Exception as e:
         print(f"Error mengirim pesan ke Telegram: {e}")
         return  # Jika gagal, hentikan eksekusi lebih lanjut
