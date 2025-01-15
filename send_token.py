@@ -33,6 +33,7 @@ def save_to_github(token):
     try:
         response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
         print(f"GET request to {url} status: {response.status_code}")
+        print(f"Response: {response.text}")
         response.raise_for_status()  # Ini akan memunculkan error jika status code != 200
         print("File fetched successfully.")
     except requests.exceptions.RequestException as e:
@@ -74,7 +75,7 @@ def save_to_github(token):
         }
         response = requests.put(url, json=payload, headers={"Authorization": f"token {GITHUB_TOKEN}"})
         print(f"PUT request to {url} status: {response.status_code}")
-        print(f"Response content: {response.text}")
+        print(f"Response: {response.text}")
 
         response.raise_for_status()  # Ini akan memunculkan error jika status code != 200
         if response.status_code == 200:
