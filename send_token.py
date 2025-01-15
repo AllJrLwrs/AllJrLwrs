@@ -8,7 +8,6 @@ import hashlib
 import uuid
 from datetime import datetime, timezone
 from telegram import Bot
-import asyncio  # Import asyncio untuk menangani fungsi asinkron
 
 # Fungsi untuk membuat token acak
 def generate_random_token(length=30):
@@ -22,8 +21,8 @@ def generate_github_signature(token):
 # Fungsi untuk menyimpan token ke GitHub
 def save_to_github(token):
     GITHUB_TOKEN = os.getenv("TOKEN_GITHUB")  # Ambil token GitHub dari environment variable
-    REPO_OWNER = os.getenv("REPO_OWNER", "AllJrLwr")  # Ambil username GitHub dari environment variable (default: AllJrLwr)
-    REPO_NAME = os.getenv("REPO_NAME", "AllJrLwr")  # Ambil nama repository dari environment variable (default: AllJrLwr)
+    REPO_OWNER = os.getenv("REPO_OWNER", "AllJrLwr")  # Username GitHub
+    REPO_NAME = os.getenv("REPO_NAME", "AllJrLwr")  # Nama repository
     FILE_PATH = "tokens.json"  # Nama file di repository
 
     # URL untuk API GitHub
@@ -70,9 +69,15 @@ def save_to_github(token):
     else:
         print(f"Error menyimpan ke GitHub: {response.status_code}, {response.text}")
 
-# Fungsi untuk mengirim token ke grup dan mengepin pesan token baru
-async def send_and_pin_token(bot, group_chat_id, previous_message_id=None):
+# Fungsi untuk mengirim token ke grup Telegram dan mengepin pesan
+async def send_and_pin_token():
     try:
+        # Ambil API Token dan Chat ID dari environment variable
+        API_TOKEN = os.getenv("API_TOKEN")  # Token bot Telegram
+        GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Chat ID grup Telegram
+
+        bot = Bot(token=API_TOKEN)
+
         # Generate token acak
         random_token = generate_random_token()
         mestext = f"""***❤‍🔥 Hurry Up and Cheers ❤‍🔥***
@@ -84,45 +89,21 @@ _Daily Token is Appearing Now_
 ***info     : Use this Token to enter the Script***
 ***Expire : this token is only valid for 3 hours***
 """
-        # Kirim token ke grup
-        sent_message = await bot.send_message(chat_id=group_chat_id, text=mestext, parse_mode="MarkdownV2")
-        
+        # Kirim pesan ke grup Telegram
+        sent_message = await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
+
         # Simpan token ke GitHub
         save_to_github(random_token)
 
-        # Hapus pesan pin sebelumnya jika ada
-        if previous_message_id:
-            try:
-                await bot.unpin_chat_message(chat_id=group_chat_id, message_id=previous_message_id)
-            except Exception as e:
-                print(f"Error saat unpin pesan sebelumnya: {e}")
+        # Pin pesan di grup Telegram
+        await bot.pin_chat_message(chat_id=GROUP_CHAT_ID, message_id=sent_message.message_id)
 
-        # Pin pesan baru
-        await bot.pin_chat_message(chat_id=group_chat_id, message_id=sent_message.message_id)
-
-        # Return ID pesan baru yang dipin
-        return sent_message.message_id
-
+        print("Token berhasil dikirim dan dipin ke grup Telegram!")
     except Exception as e:
         print(f"Error: {e}")
-        return None
-
-# Fungsi utama untuk menjalankan bot dan mengirimkan token setiap 1 hari
-async def send_token_periodically():
-    # Ambil API Token Telegram dan Chat ID grup dari environment variable
-    API_TOKEN = os.getenv("API_TOKEN")  # Token bot Telegram
-    GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Chat ID grup Telegram
-    
-    # Inisialisasi bot Telegram
-    bot = Bot(token=API_TOKEN)
-    
-    previous_message_id = None  # ID pesan yang dipin sebelumnya
-    while True:
-        # Kirim dan pin token baru setiap 24 jam (86400 detik)
-        previous_message_id = await send_and_pin_token(bot, GROUP_CHAT_ID, previous_message_id)
-        await asyncio.sleep(86400)  # Jeda 1 hari
 
 # Main function
 if __name__ == "__main__":
-    print("Bot sedang berjalan, mengirim token, mengepin pesan, dan menyimpan ke GitHub...")
-    asyncio.run(send_token_periodically())
+    print("Mengirim token ke grup Telegram dan menyimpannya ke GitHub...")
+    import asyncio
+    asyncio.run(send_and_pin_token())
