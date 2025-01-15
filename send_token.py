@@ -31,13 +31,19 @@ def save_to_github(token):
 
     # Ambil konten file saat ini
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+    
     if response.status_code == 200:
         data = response.json()
         sha = data["sha"]
         current_content = base64.b64decode(data["content"]).decode("utf-8")
-    else:
+        print(f"File berhasil diambil. Konten file: {current_content}")
+    elif response.status_code == 404:
+        print(f"File {FILE_PATH} tidak ditemukan. Membuat file baru.")
         sha = None
         current_content = "[]"
+    else:
+        print(f"Error saat mengambil file: {response.status_code}, {response.text}")
+        return  # Keluar jika ada error
 
     # Parse konten file
     current_tokens = json.loads(current_content)
@@ -61,8 +67,10 @@ def save_to_github(token):
     payload = {
         "message": "Add new token",
         "content": new_content_encoded,
-        "sha": sha,
+        "sha": sha,  # Jika file baru, sha = None
     }
+    
+    print(f"Payload yang dikirim ke GitHub: {payload}")  # Debug payload
     response = requests.put(url, json=payload, headers={"Authorization": f"token {GITHUB_TOKEN}"})
 
     if response.status_code == 200:
@@ -82,7 +90,7 @@ async def send_token():
 
 _Daily Token is Appearing Now_
 
-> || ➡️    {random_token}    ⬅️ ||
+> ||     {random_token}     ||
 
 ***info     : Use this Token to enter the Script***
 ***Expire : this token is only valid for 3 hours***
