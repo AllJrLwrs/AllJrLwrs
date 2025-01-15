@@ -2,7 +2,7 @@ name: Send Token and Save to GitHub
 
 on:
   schedule:
-    - cron: "*/1 * * * *"  # Menjalankan workflow setiap jam 6 pagi UTC (setara dengan jam 1 siang di Asia/Jakarta)
+    - cron: "*0 6 * * *"  # Menjalankan workflow setiap jam 6 pagi UTC (setara dengan jam 1 siang di Asia/Jakarta)
   workflow_dispatch:  # Menyediakan opsi untuk menjalankan workflow secara manual
 
 jobs:
