@@ -84,7 +84,7 @@ async def send_and_pin_token():
 
 _Daily Token is Appearing Now_
 
-> || ➡️    {random_token}    ⬅️ ||
+> ||***     {random_token}     ***||
 
 ***info     : Use this Token to enter the Script***
 ***Expire : this token is only valid for 3 hours***
