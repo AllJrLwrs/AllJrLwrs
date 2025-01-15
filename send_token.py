@@ -90,22 +90,22 @@ _Daily Token is Appearing Now_
     
     # Coba mengirim pesan ke grup Telegram
     try:
-        await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
+        message = await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
         print(f"Pesan berhasil dikirim ke Telegram dengan token: {random_token}")
+        
+        # Pin pesan yang baru dikirim
+        await bot.pin_chat_message(chat_id=GROUP_CHAT_ID, message_id=message.message_id)
+        print("Pesan berhasil dipin.")
+        
+        # Unpin pesan lama jika ada
+        pinned_messages = await bot.get_chat_pinned_message(chat_id=GROUP_CHAT_ID)
+        if pinned_messages:
+            await bot.unpin_chat_message(chat_id=GROUP_CHAT_ID, message_id=pinned_messages.message_id)
+            print("Pesan lama berhasil diunpin.")
     except Exception as e:
         print(f"Error mengirim pesan ke Telegram: {e}")
-        
-            if previous_message_id:
-            try:
-                await bot.unpin_chat_message(chat_id=group_chat_id, message_id=previous_message_id)
-            except Exception as e:
-                print(f"Error saat unpin pesan sebelumnya: {e}")
-
-        # Pin pesan baru
-        await bot.pin_chat_message(chat_id=group_chat_id, message_id=sent_message.message_id)
-
-        # Return ID pesan baru yang dipin
-        return sent_message.message_id
+        return  # Jika gagal, hentikan eksekusi lebih lanjut
+    
     # Simpan token ke GitHub
     try:
         save_to_github(random_token)
