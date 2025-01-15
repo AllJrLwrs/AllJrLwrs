@@ -29,3 +29,5 @@ jobs:
         API_TOKEN: ${{ secrets.API_TOKEN }}
         GROUP_CHAT_ID: ${{ secrets.GROUP_CHAT_ID }}
         TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+        REPO_OWNER: ${{ secrets.REPO_OWNER }}
+        REPO_NAME: ${{ secrets.REPO_NAME }}
