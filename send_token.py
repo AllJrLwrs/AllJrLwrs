@@ -86,11 +86,20 @@ _Daily Token is Appearing Now_
 ***info     : Use this Token to enter the Script***
 ***Expire : this token is only valid for 3 hours***
 """
-    # Kirim token ke grup
-    bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
+    
+    # Coba mengirim pesan ke grup Telegram
+    try:
+        bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
+        print(f"Pesan berhasil dikirim ke Telegram dengan token: {random_token}")
+    except Exception as e:
+        print(f"Error mengirim pesan ke Telegram: {e}")
+        return  # Jika gagal, hentikan eksekusi lebih lanjut
     
     # Simpan token ke GitHub
-    save_to_github(random_token)
+    try:
+        save_to_github(random_token)
+    except Exception as e:
+        print(f"Error saat menyimpan token ke GitHub: {e}")
 
 if __name__ == "__main__":
     send_token()
