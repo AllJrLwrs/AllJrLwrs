@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from telegram import Bot
 
 # Fungsi untuk membuat token acak
-def generate_random_token(length=50):
+def generate_random_token(length=30):
     characters = string.ascii_letters + string.digits  # Kombinasi huruf dan angka
     return ''.join(random.choice(characters) for _ in range(length))
 
