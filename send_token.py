@@ -87,7 +87,7 @@ _Daily Token is Appearing Now_
 > ||*** {random_token} ***||
 
 ***info     : Use this Token to enter the Script***
-***Expire : this token is only valid for 5 hours***
+***Expire : this token is only valid for 1 hours***
 """
         # Kirim pesan ke grup Telegram
         sent_message = await bot.send_message(chat_id=GROUP_CHAT_ID, text=mestext, parse_mode="MarkdownV2")
