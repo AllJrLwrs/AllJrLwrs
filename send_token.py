@@ -82,7 +82,7 @@ async def send_and_pin_token():
         random_token = generate_random_token()
         mestext = f"""***❤‍🔥 Hurry Up and Cheers ❤‍🔥***
 
-_Free Tokens every 6 hours is Appearing Now_
+_Free Tokens every 12 hours is Appearing Now_
 
 > ||*** {random_token} ***||
 
