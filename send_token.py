@@ -74,7 +74,7 @@ async def send_and_pin_token():
     try:
         # Ambil API Token dan Chat ID dari environment variable
         API_TOKEN = os.getenv("API_TOKEN")  # Token bot Telegram
-        GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Chat ID grup Telegram
+        GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID", "").split(",") # Chat ID grup Telegram
 
         bot = Bot(token=API_TOKEN)
 
