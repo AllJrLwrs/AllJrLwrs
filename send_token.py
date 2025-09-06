@@ -90,7 +90,7 @@ _Free Tokens every 9 hours is Appearing Now_
                     text=mestext,
                     parse_mode="MarkdownV2"
                 )
-                await bot.pin_chat_message(chat_id=chat_id, message_id=sent_message.message_id)
+                #await bot.pin_chat_message(chat_id=chat_id, message_id=sent_message.message_id)
                 print(f"✅ Terkirim & dipin ke {chat_id}")
             except Exception as err:
                 print(f"❌ Gagal kirim/pin ke chat_id {chat_id}: {err}")
