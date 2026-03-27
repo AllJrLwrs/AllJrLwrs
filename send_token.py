@@ -72,14 +72,14 @@ async def send_and_pin_token():
         bot = Bot(token=API_TOKEN)
 
         random_token = generate_random_token()
-        mestext = f"""***❤‍🔥 Hurry Up and Cheers ❤‍🔥***
+        mestext = f"""***Kiw Kiw 🗿***
 
-_Free Tokens every 9 hours is Appearing Now_
+_Paket .. , Punteunn.._
 
 > ||*** {random_token} ***||
 
-***info     : Use this Token to enter the Script***
-***Expire : this token is only valid for 2 hours***
+***info     : Use this TOKEN to enter the Script***
+***Expire : this token is valid for 4 hours***
 """
 
         for chat_id in GROUP_CHAT_IDS:
