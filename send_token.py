@@ -74,7 +74,7 @@ async def send_and_pin_token():
         random_token = generate_random_token()
         mestext = f"""***Kiw Kiw 🗿***
 
-_Paket .. , Punteunn.._
+_🗿 Paket Sudah Mendarat 🗿_
 
 > ||*** {random_token} ***||
 
