@@ -79,7 +79,7 @@ _🗿 Paket Sudah Mendarat 🗿_
 > ||*** {random_token} ***||
 
 ***info     : Use this TOKEN to enter the Script***
-***Expire : this token is valid for 4 hours***
+***Expire : this token is valid for 5 hours***
 """
 
         for chat_id in GROUP_CHAT_IDS:
